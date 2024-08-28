@@ -37,6 +37,7 @@ class T5UIC1_LCD:
     font32x64 = 0x09
 
     # Colors
+    color_black = 0x0000
     color_white = 0xFFFF
     color_yellow = 0xFF0F
     color_bg_window = 0x31E8   # Popup background color

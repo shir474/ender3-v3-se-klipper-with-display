@@ -133,7 +133,6 @@ class PrinterSerialBridge:
         #self.log("Sending bytes: " + byte_debug)
         self.serial_bridge_send_cmd.send([self.oid, msg, 4])
 
-
     def send_serial(self, msg):
         if not self._ready:
             self.warn("Can't send message in a disconnected state")
@@ -147,6 +146,7 @@ class PrinterSerialBridge:
             self.serial_bridge_send_cmd.send([self.oid, chunk, 4])
 
     def build_config(self):
+        print("build_config: enter")
         rest_ticks = self.mcu.seconds_to_clock(QUERY_TIME)
         clock = self.mcu.get_query_slot(self.oid)
         self.mcu.add_config_cmd(
@@ -157,11 +157,14 @@ class PrinterSerialBridge:
 
         cmd_queue = self.mcu.alloc_command_queue()
 
+        print("build_config: setting serial_bridge_send_cmd")
         self.mcu.register_response(self._handle_serial_bridge_response,
             "serial_bridge_response", self.oid)
         self.serial_bridge_send_cmd = self.mcu.lookup_command(
             "serial_bridge_send oid=%c text=%*s",
             cq=cmd_queue)
+
+        print("build_config: exit")
 
     def _handle_serial_bridge_response(self, params):
         data = params["text"]

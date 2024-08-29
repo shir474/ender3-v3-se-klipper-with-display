@@ -94,7 +94,6 @@ class T5UIC1_LCD:
             serial : Serial object to send messages.
         """
         self.serial = serial
-        self.init_display()
     
     def init_display(self):
         print("Sending handshake... ")

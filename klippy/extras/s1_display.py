@@ -535,12 +535,11 @@ class E3v3seDisplay:
         E3V3SEMenuKeys(config, self.key_event)
 
         self.serial_bridge = E3V3SEPrinterSerialBridge(self.config)
-   
        
         #bridge = config.get('serial_bridge')
-
         #self.serial_bridge = self.printer.lookup_object(
         #    'serial_bridge %s' %(bridge))
+
         self.serial_bridge.register_callback(
             self._handle_serial_bridge_response)
         
@@ -587,13 +586,13 @@ class E3v3seDisplay:
         self.pd.handle_ready()
         self.reactor.register_timer(
             self._reset_screen, self.reactor.monotonic())
+        self.lcd.init_display()
          
     def _reset_screen(self, eventtime):
         self.log("Reset")
         self.reactor.register_timer(
             self._screen_init, self.reactor.monotonic() + 2.)
         return self.reactor.NEVER
-
     
     def lcdExit(self):
         logging.info("Shutting down the LCD")

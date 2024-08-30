@@ -544,6 +544,7 @@ class E3v3seDisplay:
             self._handle_serial_bridge_response)
         
         self.lcd = T5UIC1_LCD(self.serial_bridge)
+        self.lcd.logging = self._logging
         self.checkkey = self.MainMenu
         self.pd = PrinterData(config)
 
@@ -586,16 +587,16 @@ class E3v3seDisplay:
         self.pd.handle_ready()
         self.reactor.register_timer(
             self._reset_screen, self.reactor.monotonic())
-        self.lcd.init_display()
          
     def _reset_screen(self, eventtime):
         self.log("Reset")
         self.reactor.register_timer(
             self._screen_init, self.reactor.monotonic() + 2.)
+        self.lcd.init_display()
         return self.reactor.NEVER
     
     def lcdExit(self):
-        logging.info("Shutting down the LCD")
+        self.log("Shutting down the LCD")
         self.lcd.set_backlight_brightness(0)
 
     def MBASE(self, L):
@@ -1820,7 +1821,7 @@ class E3v3seDisplay:
             elif self.select_TPU.now == self.PREHEAT_CASE_TEMP:  # Nozzle temperature
                 self.checkkey = self.ETemp
                 self.pd.HMI_ValueStruct.E_Temp = self.pd.material_preset[1].hotend_temp
-                print(self.pd.HMI_ValueStruct.E_Temp)
+                self.log(self.pd.HMI_ValueStruct.E_Temp)
                 self.lcd.draw_int_value(
                     True,
                     True,
@@ -3675,7 +3676,7 @@ class E3v3seDisplay:
         update = self.pd.update_variable()
         if self.last_status != self.pd.status:
             self.last_status = self.pd.status
-            print(self.pd.status)
+            self.log(self.pd.status)
             if self.pd.status == "printing":
                 self.Goto_PrintProcess()
             elif self.pd.status in ["operational", "complete", "standby", "cancelled"]:

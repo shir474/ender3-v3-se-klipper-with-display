@@ -1,3 +1,4 @@
+imprt logging
 import time
 import math
 
@@ -94,12 +95,14 @@ class T5UIC1_LCD:
             serial : Serial object to send messages.
         """
         self.serial = serial
+        self.logging = False
     
     def init_display(self):
-        print("Sending handshake... ")
+        self.log("entering init_display")
+        self.log("Sending handshake... ")
         while not self.handshake():
             pass
-        print("Handshake response: OK.")
+        self.log("Handshake response: OK.")
         self.jpg_showandcache(0)
         self.frame_setdir(1)
         self.update_lcd();
@@ -174,6 +177,7 @@ class T5UIC1_LCD:
         :rtype: bool
         """
         # Send the initiation byte (0x00)
+        self.log("handshake")
         self.byte(self.cmd_handshake)
         self.send()
         time.sleep(0.1)
@@ -183,6 +187,7 @@ class T5UIC1_LCD:
     # Set screen display direction
     #  dir: 0=0°, 1=90°, 2=180°, 3=270°
     def frame_setdir(self, dir):
+        self.log("frame_setdir")
         self.byte(self.cmd_frame_setdir)
         self.byte(0x5A)
         self.byte(0xA5)
@@ -190,6 +195,7 @@ class T5UIC1_LCD:
         self.send()
 
     def update_lcd(self):
+        self.log("update_lcd")
         self.byte(self.cmd_update_lcd)
         self.send()
 
@@ -200,11 +206,13 @@ class T5UIC1_LCD:
         :param luminance: Luminance level (0x00-0xff).
         :type luminance: int
         """
+        self.log("backlight_brightness")
         self.byte(self.cmd_backlight_brightness)
         self.byte(max(brightness, 0x1f))
         self.send()
 
     def jpg_showandcache(self, id):
+        self.log("jpg_showandcache")
         self.word(self.cmd_jpeg_showandcache)
         self.byte(id)
         self.send()
@@ -218,6 +226,7 @@ class T5UIC1_LCD:
         :param front_color: Foreground (text) color.
         :type front_color: int
         """
+        self.log("set_platette")
         self.byte(self.cmd_set_palette)
         self.word(foreground_color)
         self.word(background_color)
@@ -230,6 +239,7 @@ class T5UIC1_LCD:
         :param color: Background color.
         :type color: int
         """
+        self.log("clear screen")
         self.byte(self.cmd_clear_screen)
         self.word(color)
         self.send()
@@ -245,6 +255,7 @@ class T5UIC1_LCD:
         :param y: Y-coordinate of the point.
         :type y: int
         """
+        self.log("draw point")
         self.byte(self.cmd_draw_line)
         self.word(color)
         self.byte(w_x) # x width
@@ -268,6 +279,7 @@ class T5UIC1_LCD:
         :param y_end: Y-coordinate of the ending point.
         :type y_end: int
         """
+        self.log("draw line")
         self.byte(self.cmd_draw_line)
         self.word(color)
         self.word(x_start)
@@ -293,6 +305,7 @@ class T5UIC1_LCD:
         :param y_end: Y-coordinate of the lower-right point.
         :type y_end: int
         """
+        self.log("draw rect")
         self.set_palette(self.color_white, color)
         mode_to_command = {
             0: self.cmd_draw_rectangle,
@@ -426,6 +439,7 @@ class T5UIC1_LCD:
         """
 
         width_adjust=1
+        self.log("draw text")
         self.byte(self.cmd_draw_text)
         # bit 7 : width_adjust
         # bit 6 : show
@@ -476,6 +490,7 @@ class T5UIC1_LCD:
         :param value: Integer value.
         :type value: int
         """
+        self.log("draw int")
         self.byte(self.cmd_draw_int)
         # Bit 7: bshow
         # Bit 6: 1 = signed; 0 = unsigned number;
@@ -538,6 +553,7 @@ class T5UIC1_LCD:
         :param value: Float value.
         :type value: float
         """
+        self.log("draw float")
         self.byte(self.cmd_draw_value)
         # Bit 7: bshow
         # Bit 6: 1 = signed; 0 = unsigned number;
@@ -631,6 +647,7 @@ class T5UIC1_LCD:
         :param y: Y-coordinate of the upper-left corner.
         :type y: int
         """
+        self.log("draw icon")
         if x > self.screen_width - 1:
             x = self.screen_width - 1
         if y > self.screen_height - 1:
@@ -650,6 +667,7 @@ class T5UIC1_LCD:
         :param id: Picture ID.
         :type id: int
         """
+        self.log("show image")
         self.byte(self.cmd_show_image)
         self.byte(id)
         self.send()
@@ -675,6 +693,7 @@ class T5UIC1_LCD:
         :param y_end: Y-coordinate of the lower-right corner of the virtual area.
         :type y_end: int
         """
+        self.log("move screen area")
         self.byte(self.cmd_move_screen_area)
         # mode 0: circle shift, 1: translation, mode << 7
         self.byte(0x80 | direction)
@@ -685,3 +704,10 @@ class T5UIC1_LCD:
         self.word(x_end)
         self.word(y_end)
         self.send()
+
+    def log(self, msg, *args, **kwargs):
+        if self.logging:
+            logging.info("T54UIC1 LCD: " + str(msg))
+    
+    def error(self, msg, *args, **kwargs):
+        logging.error("T5UIC1 LCD: " + str(msg))

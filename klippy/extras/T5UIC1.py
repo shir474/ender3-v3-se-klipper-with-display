@@ -1,4 +1,4 @@
-imprt logging
+import logging
 import time
 import math
 

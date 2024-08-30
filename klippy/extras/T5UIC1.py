@@ -95,7 +95,9 @@ class T5UIC1_LCD:
             serial : Serial object to send messages.
         """
         self.serial = serial
-        self.logging = False
+        self.logging = True
+        logging.info("init")
+        self.log("test")
     
     def init_display(self):
         self.log("entering init_display")
@@ -707,7 +709,7 @@ class T5UIC1_LCD:
 
     def log(self, msg, *args, **kwargs):
         if self.logging:
-            logging.info("T54UIC1 LCD: " + str(msg))
+            logging.info("T5UIC1 LCD: " + str(msg))
     
     def error(self, msg, *args, **kwargs):
         logging.error("T5UIC1 LCD: " + str(msg))

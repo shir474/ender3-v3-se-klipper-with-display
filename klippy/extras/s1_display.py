@@ -589,7 +589,7 @@ class E3v3seDisplay:
             self._reset_screen, self.reactor.monotonic())
          
     def _reset_screen(self, eventtime):
-        self.log("Reset")
+        self.log("Reset Screen")
         self.reactor.register_timer(
             self._screen_init, self.reactor.monotonic() + 2.)
         self.lcd.init_display()

@@ -97,7 +97,6 @@ class T5UIC1_LCD:
         self.serial = serial
         self.logging = True
         logging.info("init")
-        self.log("test")
     
     def init_display(self):
         self.log("entering init_display")
@@ -184,7 +183,23 @@ class T5UIC1_LCD:
         self.send()
         time.sleep(0.1)
 
-        return True
+        max_retry = 26
+        req = 0
+        databuf = [None] * max_retry
+        while (self.serial.in_waiting and req<max_retry):
+                databuf[req] = struct.unpack('B', self.serial.read())[0] 
+                if databuf[0] != 0xAA:
+                        if (recnum>0):
+                                req=0
+                                databuf = [None] * max_retry
+                        continue
+                time.sleep(.010)
+                req += 1
+        retval = (req>=3 and databuf[0] == 0xAA and databuf[1] == 0 and chr(databuf[2]) == 'O' and chr(databuf[3]) == 'K')
+        self.log("handshake " + retval)
+        return retval
+
+        # return True
 
     # Set screen display direction
     #  dir: 0=0°, 1=90°, 2=180°, 3=270°

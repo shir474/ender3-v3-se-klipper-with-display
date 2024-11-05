@@ -192,14 +192,16 @@ class T5UIC1_LCD:
         max_retry = 26
         req = 0
         databuf = [None] * max_retry
-        while (self.serial.in_waiting and req<max_retry):
-                databuf[req] = struct.unpack('B', self._serial_read())[0] 
-                if databuf[0] != 0xAA:
-                        if (recnum>0):
-                                req=0
-                                databuf = [None] * max_retry
-                        continue
-                time.sleep(.010)
+        while (req<max_retry):
+                data_read = self._serial_read() 
+                if len(data_read) > 0:
+                        databuf[req] = struct.unpack('B', data_read)[0] 
+                        if databuf[0] != 0xAA:
+                                if (recnum>0):
+                                        req=0
+                                        databuf = [None] * max_retry
+                                continue
+                time.sleep(.020)
                 req += 1
         retval = (req>=3 and databuf[0] == 0xAA and databuf[1] == 0 and chr(databuf[2]) == 'O' and chr(databuf[3]) == 'K')
         self.log("handshake " + retval)

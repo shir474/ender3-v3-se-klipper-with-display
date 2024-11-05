@@ -2,6 +2,7 @@ import logging
 import time
 import math
 from threading import Lock
+import struct
 
 class T5UIC1_LCD:
     """

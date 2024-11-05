@@ -101,7 +101,7 @@ class T5UIC1_LCD:
         self.serial = serial
         self.logging = True
         logging.info("init T5UIC1_LCD")
-        self.serial_bridge.register_callback(
+        self.serial.register_callback(
             self._handle_serial_read)
     
     def init_display(self):

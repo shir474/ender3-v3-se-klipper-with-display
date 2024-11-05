@@ -204,7 +204,7 @@ class T5UIC1_LCD:
                 time.sleep(.020)
                 req += 1
         retval = (req>=3 and databuf[0] == 0xAA and databuf[1] == 0 and chr(databuf[2]) == 'O' and chr(databuf[3]) == 'K')
-        self.log("handshake " + retval)
+        self.log("handshake " + string(retval))
         return retval
 
         # return True

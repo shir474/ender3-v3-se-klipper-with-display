@@ -735,7 +735,7 @@ class T5UIC1_LCD:
     def error(self, msg, *args, **kwargs):
         logging.error("T5UIC1 LCD: " + str(msg))
 
-    def _handle_serial_read((self, data):
+    def _handle_serial_read(self, data):
         self.lock.acquire()
         self.serial_data.append(byte) for byte in data
         self.lock.release()

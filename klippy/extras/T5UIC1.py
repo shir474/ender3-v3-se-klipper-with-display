@@ -737,7 +737,8 @@ class T5UIC1_LCD:
 
     def _handle_serial_read(self, data):
         self.lock.acquire()
-        self.serial_data.append(byte) for byte in data
+        for byte in data:
+            self.serial_data.append(byte)
         self.lock.release()
         byte_debug = ' '.join(['0x{:02x}'.format(byte) for byte in data])
         log("Received message: " + byte_debug)

@@ -748,4 +748,4 @@ class T5UIC1_LCD:
         data = self.serial_data
         self.serial_data = bytearray()
         self.lock.release()
-       return data
+        return data

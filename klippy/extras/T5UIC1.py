@@ -743,7 +743,7 @@ class T5UIC1_LCD:
         byte_debug = ' '.join(['0x{:02x}'.format(byte) for byte in data])
         log("Received message: " + byte_debug)
 
-   def _serial_read(self):
+    def _serial_read(self):
         self.lock.acquire()
         data = self.serial_data
         self.serial_data = bytearray()

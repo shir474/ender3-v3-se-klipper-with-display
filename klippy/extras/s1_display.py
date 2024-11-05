@@ -540,8 +540,8 @@ class E3v3seDisplay:
         #self.serial_bridge = self.printer.lookup_object(
         #    'serial_bridge %s' %(bridge))
 
-        self.serial_bridge.register_callback(
-            self._handle_serial_bridge_response)
+        #self.serial_bridge.register_callback(
+        #    self._handle_serial_bridge_response)
         
         self.lcd = T5UIC1_LCD(self.serial_bridge)
         self.lcd.logging = self._logging

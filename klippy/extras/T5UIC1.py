@@ -1,6 +1,7 @@
 import logging
 import time
 import math
+from threading import Lock
 
 class T5UIC1_LCD:
     """
@@ -87,6 +88,7 @@ class T5UIC1_LCD:
     direction_up = 0x02
     direction_down = 0x03
 
+
     def __init__(self, serial):
         """
         Initializes the LCD object.
@@ -94,9 +96,13 @@ class T5UIC1_LCD:
         Args:
             serial : Serial object to send messages.
         """
+        self.serial_data = bytearray()
+        self.lock = Lock()
         self.serial = serial
         self.logging = True
-        logging.info("init")
+        logging.info("init T5UIC1_LCD")
+        self.serial_bridge.register_callback(
+            self._handle_serial_read)
     
     def init_display(self):
         self.log("entering init_display")
@@ -187,7 +193,7 @@ class T5UIC1_LCD:
         req = 0
         databuf = [None] * max_retry
         while (self.serial.in_waiting and req<max_retry):
-                databuf[req] = struct.unpack('B', self.serial.read())[0] 
+                databuf[req] = struct.unpack('B', self._serial_read())[0] 
                 if databuf[0] != 0xAA:
                         if (recnum>0):
                                 req=0
@@ -728,3 +734,17 @@ class T5UIC1_LCD:
     
     def error(self, msg, *args, **kwargs):
         logging.error("T5UIC1 LCD: " + str(msg))
+
+    def _handle_serial_read((self, data):
+        self.lock.acquire()
+        self.serial_data.append(byte) for byte in data
+        self.lock.release()
+        byte_debug = ' '.join(['0x{:02x}'.format(byte) for byte in data])
+        log("Received message: " + byte_debug)
+
+   def _serial_read(self):
+        self.lock.acquire()
+        data = self.serial_data
+        self.serial_data = bytearray()
+        self.lock.release()
+       return data

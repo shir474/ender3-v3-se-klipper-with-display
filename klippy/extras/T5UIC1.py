@@ -191,19 +191,35 @@ class T5UIC1_LCD:
         time.sleep(0.1)
 
         max_retry = 26
-        req = 0
-        databuf = [None] * max_retry
-        while (req<max_retry):
+        reqnum = 0
+        databuf = bytearray(4)
+        while (reqnum < max_retry):
                 data_read = self._serial_read() 
-                if len(data_read) > 0:
-                        databuf[req] = struct.unpack('B', data_read)[0] 
-                        if databuf[0] != 0xAA:
-                                if (recnum>0):
-                                        req=0
-                                        databuf = [None] * max_retry
-                                continue
-                time.sleep(.020)
-                req += 1
+                if data_read != 0xAA:
+                        reqnum += 1
+                        time.sleep(.020)
+                        continue
+                databuf[0] = data_read
+                dindex = 1
+                reqnum = 0
+                while (dindex < 4 and reqnum < max_retry):
+                        data_read = self._serial_read()
+                        if (d != None):
+                            databuf[dindex] = data_read
+                            dindex += 1
+                        reqnum += 1
+                        time.sleep(.020)
+                reqnum=max_retry
+        retval = (databuf[0] == 0xAA and databuf[1] == 0 and chr(databuf[2]) == 'O' and chr(databuf[3]) == 'K')
+        self.log("handshake " + str(retval))
+        return retval
+        # return True
+
+    # Set screen display direction
+    #  dir: 0=0°, 1=90°, 2=180°, 3=270°
+    def frame_setdir(self, dir):
+        self.log("frame_setdir")
+        self.byte(self.cmd_frame_setdir)
         retval = (req>=3 and databuf[0] == 0xAA and databuf[1] == 0 and chr(databuf[2]) == 'O' and chr(databuf[3]) == 'K')
         self.log("handshake " + str(retval))
         return retval
@@ -740,15 +756,16 @@ class T5UIC1_LCD:
 
     def _handle_serial_read(self, data):
         self.lock.acquire()
-        for byte in data:
-            self.serial_data.append(byte)
+        self.serial_data.extend(byte)
         self.lock.release()
         byte_debug = ' '.join(['0x{:02x}'.format(byte) for byte in data])
         log("Received message: " + byte_debug)
 
     def _serial_read(self):
+        data = None
         self.lock.acquire()
-        data = self.serial_data
-        self.serial_data = bytearray()
+        if len(self.serial_data) > 0:
+            data = self.serial_data[0]
+            del self.serial_data[0]
         self.lock.release()
         return data
